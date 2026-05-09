@@ -21,7 +21,7 @@ rpicam-vid \
   --width 1280 \
   --height 480 \
   --framerate 20 \
-  --codec mjpeg \
+  --codec h264 --profile high --level 4.2 --bitrate 5000000 \
   --inline \
   --timeout 0 \
   -o "udp://$STREAM_DEST_IP:$STREAM_PORT"
