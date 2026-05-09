@@ -22,6 +22,7 @@ class StereoUdpReceiver(Node):
         
         self.lock = threading.Lock()
         self.current_frame = None
+        self.current_frame_time = None
         self.running = True
         
         self.get_logger().info('Starting UDP Receiver Thread...')
@@ -40,6 +41,7 @@ class StereoUdpReceiver(Node):
             if ret and frame is not None:
                 with self.lock:
                     self.current_frame = frame
+                    self.current_frame_time = self.get_clock().now()
             else:
                 continue
 
@@ -69,14 +71,17 @@ class StereoUdpReceiver(Node):
 
     def timer_callback(self):
         frame = None
+        ts = None
         with self.lock:
             if self.current_frame is not None:
                 frame = self.current_frame.copy()
-                self.current_frame = None 
+                ts = self.current_frame_time
+                self.current_frame = None
+                self.current_frame_time = None
 
-        if frame is not None:
+        if frame is not None and ts is not None:
             self.frame_count += 1
-            now = self.get_clock().now().to_msg()
+            now = ts.to_msg()
             h, w, _ = frame.shape
             half_w = w // 2
             left_img = frame[:, :half_w]
